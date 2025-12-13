@@ -27,7 +27,7 @@ jobs:
           node-version: '20'
       
       - name: Install docx package
-        run: npm install -g docx
+        run: npm install docx
       
       - name: Run penitential-act tests
         run: node penitential-act/scripts/test_generate_penitential_act.js
