@@ -1,0 +1,71 @@
+name: Build and Release Skills
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        type: string
+      release_notes:
+        description: 'Release notes (optional)'
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  test-and-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install docx package
+        run: npm install -g docx
+      
+      - name: Run penitential-act tests
+        run: node penitential-act/scripts/test_generate_penitential_act.js
+      
+      # Add more test steps here as you add skills:
+      # - name: Run another-skill tests
+      #   run: node another-skill/scripts/test_another_skill.js
+      
+      - name: Package penitential-act skill
+        run: |
+          cd penitential-act
+          zip -r ../penitential-act.skill SKILL.md scripts/
+      
+      # Add more packaging steps here as you add skills:
+      # - name: Package another-skill
+      #   run: |
+      #     cd another-skill
+      #     zip -r ../another-skill.skill SKILL.md scripts/
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ inputs.version }}
+          name: ${{ inputs.version }}
+          body: |
+            ## Catholic Liturgy Skills ${{ inputs.version }}
+            
+            ${{ inputs.release_notes }}
+            
+            ### Included Skills
+            - **penitential-act.skill** - Generates formatted Penitential Act documents
+            
+            ### Installation
+            1. Download the `.skill` file for the skill you want
+            2. Upload it to Claude
+          files: |
+            penitential-act.skill
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
