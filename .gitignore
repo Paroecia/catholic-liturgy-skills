@@ -1,0 +1,16 @@
+# Output files
+*.docx
+*.pdf
+
+# Packaged skills (keep in releases, not in repo)
+*.skill
+
+# Node modules
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test output
+/tmp/
