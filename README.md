@@ -6,7 +6,8 @@ A collection of Claude skills for generating professionally formatted Catholic l
 
 | Skill | Description |
 |-------|-------------|
-| [penitential-act](./penitential-act/) | Generates Penitential Act (Form C) documents with proper "say the black, do the red" formatting |
+| [penitential-act-formatter](./penitential-act-formatter/) | Generates Penitential Act (Form C) documents with proper "say the black, do the red" formatting |
+| [penitential-act-invocations](./penitential-act-invocations/) | Writing assistant that helps to write penitential acts that go with the readings |
 
 ## Installation
 
