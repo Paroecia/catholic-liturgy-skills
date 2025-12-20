@@ -44,11 +44,11 @@ jobs:
           cd penitential-act-formatter
           zip -r ../penitential-act-formatter.skill SKILL.md scripts/
       
-      # Add more packaging steps here as you add skills:
-      # - name: Package another-skill
-      #   run: |
-      #     cd another-skill
-      #     zip -r ../another-skill.skill SKILL.md scripts/
+      - name: Package penitential-act-invocations skill
+        run: |
+          cd penitential-act-invocations
+          zip -r ../penitential-act-invocations.skill SKILL.md
+
       
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -62,12 +62,14 @@ jobs:
             
             ### Included Skills
             - **penitential-act-formatter.skill** - Generates formatted Penitential Act documents
+            - **penitential-act-invocations.skill** - Invocation sequences for the Penitential Act skill
             
             ### Installation
             1. Download the `.skill` file for the skill you want
             2. Upload it to Claude
           files: |
             penitential-act-formatter.skill
+            penitential-act-invocations.skill
           draft: false
           prerelease: false
         env:
