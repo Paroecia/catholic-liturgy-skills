@@ -20,6 +20,10 @@ const TEST_INVOCATIONS = [
   "Lord Jesus, you bless all who believe your promises:"
 ];
 
+// Custom priest texts for testing
+const CUSTOM_PRIEST_OPENING = "Dear friends, as we prepare to celebrate these sacred mysteries, let us acknowledge our need for God's mercy.";
+const CUSTOM_PRIEST_CLOSING = "May God in his infinite mercy forgive us our sins and lead us to eternal life.";
+
 // Clean up and create test directory
 function setup() {
   if (fs.existsSync(TEST_OUTPUT_DIR)) {
@@ -29,8 +33,14 @@ function setup() {
 }
 
 // Run the generator script
-function runGenerator(outputDir, celebration, season, year, inv1, inv2, inv3) {
-  const cmd = `node "${SCRIPT_PATH}" "${outputDir}" "${celebration}" "${season}" "${year}" "${inv1}" "${inv2}" "${inv3}"`;
+function runGenerator(outputDir, celebration, season, year, inv1, inv2, inv3, priestOpening = null, priestClosing = null) {
+  let cmd = `node "${SCRIPT_PATH}" "${outputDir}" "${celebration}" "${season}" "${year}" "${inv1}" "${inv2}" "${inv3}"`;
+  if (priestOpening !== null) {
+    cmd += ` "${priestOpening}"`;
+  }
+  if (priestClosing !== null) {
+    cmd += ` "${priestClosing}"`;
+  }
   return execSync(cmd, { encoding: 'utf-8' });
 }
 
@@ -257,6 +267,96 @@ function testFilenameSpecialChars() {
   console.log("  ✓ Passed");
 }
 
+// Test 12: Custom priest opening only
+function testCustomPriestOpening() {
+  console.log("Test 12: Custom priest opening only...");
+  
+  runGenerator(
+    TEST_OUTPUT_DIR,
+    "3rd",
+    "Advent",
+    "B",
+    TEST_INVOCATIONS[0],
+    TEST_INVOCATIONS[1],
+    TEST_INVOCATIONS[2],
+    CUSTOM_PRIEST_OPENING
+  );
+  
+  const expectedFile = path.join(TEST_OUTPUT_DIR, "Penitential Act_3rd Sunday of Advent_B.docx");
+  assert(fs.existsSync(expectedFile), `Expected file not found: ${expectedFile}`);
+  
+  console.log("  ✓ Passed");
+}
+
+// Test 13: Custom priest closing only
+function testCustomPriestClosing() {
+  console.log("Test 13: Custom priest closing only...");
+  
+  runGenerator(
+    TEST_OUTPUT_DIR,
+    "4th",
+    "Lent",
+    "C",
+    TEST_INVOCATIONS[0],
+    TEST_INVOCATIONS[1],
+    TEST_INVOCATIONS[2],
+    null,
+    CUSTOM_PRIEST_CLOSING
+  );
+  
+  const expectedFile = path.join(TEST_OUTPUT_DIR, "Penitential Act_4th Sunday of Lent_C.docx");
+  assert(fs.existsSync(expectedFile), `Expected file not found: ${expectedFile}`);
+  
+  console.log("  ✓ Passed");
+}
+
+// Test 14: Both custom priest opening and closing
+function testCustomPriestBoth() {
+  console.log("Test 14: Both custom priest opening and closing...");
+  
+  runGenerator(
+    TEST_OUTPUT_DIR,
+    "Epiphany of the Lord",
+    "",
+    "A",
+    TEST_INVOCATIONS[0],
+    TEST_INVOCATIONS[1],
+    TEST_INVOCATIONS[2],
+    CUSTOM_PRIEST_OPENING,
+    CUSTOM_PRIEST_CLOSING
+  );
+  
+  const expectedFile = path.join(TEST_OUTPUT_DIR, "Penitential Act_Epiphany of the Lord_A.docx");
+  assert(fs.existsSync(expectedFile), `Expected file not found: ${expectedFile}`);
+  
+  console.log("  ✓ Passed");
+}
+
+// Test 15: Very long custom texts (font size adjustment test)
+function testLongCustomTexts() {
+  console.log("Test 15: Very long custom priest texts (font size adjustment)...");
+  
+  const longOpening = "Beloved brothers and sisters in Christ, as we gather here today in the presence of the Lord to celebrate these most sacred and holy mysteries, let us pause for a moment to acknowledge before God and one another our sins, our failings, and our deep need for divine mercy and forgiveness.";
+  const longClosing = "May almighty God, in his infinite wisdom, boundless compassion, and unfailing love, have mercy on us, forgive us all our sins both known and unknown, heal the wounds of our past transgressions, and bring us safely to the joy of everlasting life in his heavenly kingdom.";
+  
+  runGenerator(
+    TEST_OUTPUT_DIR,
+    "5th",
+    "Easter",
+    "C",
+    TEST_INVOCATIONS[0],
+    TEST_INVOCATIONS[1],
+    TEST_INVOCATIONS[2],
+    longOpening,
+    longClosing
+  );
+  
+  const expectedFile = path.join(TEST_OUTPUT_DIR, "Penitential Act_5th Sunday of Easter_C.docx");
+  assert(fs.existsSync(expectedFile), `Expected file not found: ${expectedFile}`);
+  
+  console.log("  ✓ Passed");
+}
+
 // Main test runner
 function runTests() {
   console.log("=".repeat(60));
@@ -277,7 +377,11 @@ function runTests() {
     testSundayWithoutSeason,
     testMissingArguments,
     testDocxStructure,
-    testFilenameSpecialChars
+    testFilenameSpecialChars,
+    testCustomPriestOpening,
+    testCustomPriestClosing,
+    testCustomPriestBoth,
+    testLongCustomTexts
   ];
   
   let passed = 0;

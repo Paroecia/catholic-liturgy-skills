@@ -2,16 +2,18 @@
 /**
  * Generates a Penitential Act document in docx format
  * 
- * Usage: node generate_penitential_act.js <output_dir> <celebration> <season> <year> <invocation1> <invocation2> <invocation3>
+ * Usage: node generate_penitential_act.js <output_dir> <celebration> <season> <year> <invocation1> <invocation2> <invocation3> [priest_opening] [priest_closing]
  * 
  * Arguments:
- *   output_dir   - Directory to write the output file
- *   celebration  - Celebration name: ordinal for Sundays (e.g., "1st", "2nd") OR full name for feasts (e.g., "Solemnity of Mary, Mother of God")
- *   season       - Liturgical season (e.g., "Advent", "Lent", "Ordinary Time") OR empty string "" for named feasts
- *   year         - Liturgical year: A, B, or C
- *   invocation1  - First Deacon invocation text (Lord, have mercy)
- *   invocation2  - Second Deacon invocation text (Christ, have mercy)
- *   invocation3  - Third Deacon invocation text (Lord, have mercy)
+ *   output_dir       - Directory to write the output file
+ *   celebration      - Celebration name: ordinal for Sundays (e.g., "1st", "2nd") OR full name for feasts (e.g., "Solemnity of Mary, Mother of God")
+ *   season           - Liturgical season (e.g., "Advent", "Lent", "Ordinary Time") OR empty string "" for named feasts
+ *   year             - Liturgical year: A, B, or C
+ *   invocation1      - First Deacon invocation text (Lord, have mercy)
+ *   invocation2      - Second Deacon invocation text (Christ, have mercy)
+ *   invocation3      - Third Deacon invocation text (Lord, have mercy)
+ *   priest_opening   - (Optional) Custom priest opening text. If not provided, uses default.
+ *   priest_closing   - (Optional) Custom priest closing prayer. If not provided, uses default.
  * 
  * Output: 
  *   For Sundays: Penitential Act_{ordinal} Sunday of {season}_{year}.docx
@@ -126,14 +128,14 @@ function createTitle(celebration, season, year, fontSize) {
 /**
  * Creates the complete document structure
  */
-function createPenitentialActDocument(invocations, celebration, season, year, fontSize) {
+function createPenitentialActDocument(invocations, celebration, season, year, fontSize, priestOpening, priestClosing) {
   const children = [
     // Title
     createTitle(celebration, season, year, fontSize),
     
     // Priest opening
     createRoleLabel("Priest", fontSize),
-    createSpokenText(PRIEST_OPENING, fontSize),
+    createSpokenText(priestOpening, fontSize),
     
     // Deacon invocations
     createRoleLabel("Deacon", fontSize),
@@ -150,7 +152,7 @@ function createPenitentialActDocument(invocations, celebration, season, year, fo
     
     // Priest closing
     createRoleLabel("Priest", fontSize),
-    createSpokenText(PRIEST_CLOSING, fontSize)
+    createSpokenText(priestClosing, fontSize)
   ];
 
   return new Document({
@@ -168,16 +170,16 @@ function createPenitentialActDocument(invocations, celebration, season, year, fo
 /**
  * Calculates font size to maximize readability while fitting on one page
  */
-function calculateFontSize(invocations, celebration, season, year) {
+function calculateFontSize(invocations, celebration, season, year, priestOpening, priestClosing) {
   const celebrationTitle = formatCelebrationTitle(celebration, season);
   const title = `Penitential Act – ${celebrationTitle}, Year ${year}`;
   const allText = [
     title,
-    PRIEST_OPENING,
+    priestOpening,
     invocations[0], "Lord, have mercy.",
     invocations[1], "Christ, have mercy.",
     invocations[2], "Lord, have mercy.",
-    PRIEST_CLOSING
+    priestClosing
   ];
   
   const totalChars = allText.reduce((sum, t) => sum + t.length, 0);
@@ -237,18 +239,25 @@ async function main() {
   const args = process.argv.slice(2);
   
   if (args.length < 7) {
-    console.error("Usage: node generate_penitential_act.js <output_dir> <celebration> <season> <year> <invocation1> <invocation2> <invocation3>");
+    console.error("Usage: node generate_penitential_act.js <output_dir> <celebration> <season> <year> <invocation1> <invocation2> <invocation3> [priest_opening] [priest_closing]");
     console.error("");
     console.error("For Sundays:");
     console.error('  node generate_penitential_act.js ./output "1st" "Advent" "A" "inv1" "inv2" "inv3"');
     console.error("");
     console.error("For Named Feasts:");
     console.error('  node generate_penitential_act.js ./output "Solemnity of Mary, Mother of God" "" "C" "inv1" "inv2" "inv3"');
+    console.error("");
+    console.error("With custom priest texts:");
+    console.error('  node generate_penitential_act.js ./output "1st" "Advent" "A" "inv1" "inv2" "inv3" "Custom opening" "Custom closing"');
     process.exit(1);
   }
   
-  const [outputDir, celebration, season, year, inv1, inv2, inv3] = args;
+  const [outputDir, celebration, season, year, inv1, inv2, inv3, priestOpening, priestClosing] = args;
   const invocations = [inv1, inv2, inv3];
+  
+  // Use default texts if custom ones not provided
+  const finalPriestOpening = priestOpening || PRIEST_OPENING;
+  const finalPriestClosing = priestClosing || PRIEST_CLOSING;
   
   // Validate year
   if (!['A', 'B', 'C'].includes(year.toUpperCase())) {
@@ -263,10 +272,10 @@ async function main() {
   }
   
   // Calculate optimal font size
-  const fontSize = calculateFontSize(invocations, celebration, season, year.toUpperCase());
+  const fontSize = calculateFontSize(invocations, celebration, season, year.toUpperCase(), finalPriestOpening, finalPriestClosing);
   
   // Create document
-  const doc = createPenitentialActDocument(invocations, celebration, season, year.toUpperCase(), fontSize);
+  const doc = createPenitentialActDocument(invocations, celebration, season, year.toUpperCase(), fontSize, finalPriestOpening, finalPriestClosing);
   
   // Generate filename and full path
   const filename = generateFilename(celebration, season, year.toUpperCase());
