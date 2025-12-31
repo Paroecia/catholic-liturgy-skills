@@ -1,11 +1,11 @@
 ---
 name: penitential-act-invocations
-description: Writes three invocations for the Penitential Act (Form C) based on the day's liturgical readings. Use when a deacon or liturgy preparer needs to compose invocations for Mass. Fetches readings from USCCB, identifies themes, confirms with user, then drafts short, Christologically-focused invocations. Can hand off to penitential-act skill for formatting.
+description: Writes the complete Penitential Act (Form C) including priest's introduction, three invocations, and absolution prayer based on the day's liturgical readings. Use when a deacon or liturgy preparer needs to compose the Penitential Act for Mass. Fetches readings from USCCB, identifies themes, confirms with user, then drafts priest's introduction, short Christologically-focused invocations, and absolution prayer. Can hand off to penitential-act skill for formatting.
 ---
 
-# Penitential Act Invocation Writer
+# Penitential Act Writer
 
-Compose three invocations for the Penitential Act (Form C with tropes) based on the day's Scripture readings.
+Compose the complete Penitential Act (Form C with tropes) based on the day's Scripture readings, including the priest's introduction, three invocations, and absolution prayer.
 
 ## Workflow
 
@@ -53,7 +53,32 @@ Present 4-6 key themes from the readings to the user:
 
 Wait for user selection before drafting.
 
-### 4. Draft Invocations
+### 4. Draft the Complete Penitential Act
+
+Write the complete Penitential Act in this order:
+
+#### A. Priest's Introduction
+
+Compose an introduction where the priest invites the assembly to acknowledge their sins.
+
+**Guidelines:**
+- Can be standard text or adapted to the day's themes
+- Should help the assembly call to mind their sins
+- Can be a bit longer than the invocations (2-3 sentences)
+- Use inclusive language ("us", "our") to invite the community
+- Gentle and inviting tone, not harsh or condemning
+
+**Standard option:**
+```
+Brethren (brothers and sisters), let us acknowledge our sins, and so prepare ourselves to celebrate the sacred mysteries.
+```
+
+**Theme-adapted option example:**
+```
+As we prepare to celebrate these sacred mysteries, let us pause to acknowledge the times we have turned away from God's light, failed to trust in his promises, or neglected to share his love with others.
+```
+
+#### B. Three Invocations
 
 Write exactly **three invocations** following these rules:
 
@@ -85,20 +110,46 @@ Lord Jesus, [short invocation based on themes]:
 Lord, have mercy.
 ```
 
+#### C. Absolution Prayer
+
+Include the standard absolution prayer that the priest prays after the Penitential Act:
+
+```
+May almighty God have mercy on us, forgive us our sins, and bring us to everlasting life.
+```
+
+**Complete output format:**
+```
+[Priest's introduction]
+
+Lord Jesus, [invocation]:
+Lord, have mercy.
+
+Christ Jesus, [invocation]:
+Christ, have mercy.
+
+Lord Jesus, [invocation]:
+Lord, have mercy.
+
+May almighty God have mercy on us, forgive us our sins, and bring us to everlasting life.
+```
+
 ### 5. User Review
 
-Present the draft and ask: "Would you like any adjustments to these invocations?"
+Present the complete draft and ask: "Would you like any adjustments to the introduction, invocations, or absolution prayer?"
 
 Iterate as needed until user approves.
 
 ### 6. Handoff to Formatting
 
-When user indicates they're ready to publish/format, invoke the `penitential-act-formatter` skill with:
+When user indicates they're ready to publish/format, invoke the `penitential-act` skill with:
 
 - **celebration**: The celebration name (e.g., "4th Sunday of Advent" or "Solemnity of Mary, Mother of God")
 - **season**: Liturgical season (Advent, Christmas, Lent, Easter, Ordinary Time)
 - **year**: A, B, or C
+- **introduction**: The priest's introduction text
 - **invocations**: The three invocation texts (without "Lord/Christ, have mercy" responses)
+- **absolution**: The absolution prayer text
 
 ## Examples
 
@@ -108,6 +159,8 @@ When user indicates they're ready to publish/format, invoke the `penitential-act
 
 **Output:**
 ```
+As we prepare to celebrate these sacred mysteries on this final Sunday of Advent, let us acknowledge the times we have failed to recognize God's presence among us, doubted his promises, or closed our hearts to his joy.
+
 Lord Jesus, you are the shepherd promised from Bethlehem:
 Lord, have mercy.
 
@@ -116,6 +169,8 @@ Christ, have mercy.
 
 Lord Jesus, you bless all who believe your promises:
 Lord, have mercy.
+
+May almighty God have mercy on us, forgive us our sins, and bring us to everlasting life.
 ```
 
 ### Example 2: Second Sunday of Ordinary Time, Year C (Cana)
@@ -124,6 +179,8 @@ Lord, have mercy.
 
 **Output:**
 ```
+Brethren, let us acknowledge our sins, and so prepare ourselves to celebrate the sacred mysteries.
+
 You revealed your glory and your disciples began to believe:
 Lord, have mercy.
 
@@ -132,6 +189,8 @@ Christ, have mercy.
 
 You delight in your people as a bridegroom in his bride:
 Lord, have mercy.
+
+May almighty God have mercy on us, forgive us our sins, and bring us to everlasting life.
 ```
 
 ### Example 3: Solemnity of Mary, Mother of God
@@ -140,6 +199,8 @@ Lord, have mercy.
 
 **Output:**
 ```
+As we begin this new year under the protection of Mary, Mother of God, let us acknowledge our sins and ask for her intercession as we seek God's mercy.
+
 Lord Jesus, born of the Virgin Mary to make us children of God:
 Lord, have mercy.
 
@@ -148,4 +209,6 @@ Christ, have mercy.
 
 Lord Jesus, you hear your people through your Mother's prayers:
 Lord, have mercy.
+
+May almighty God have mercy on us, forgive us our sins, and bring us to everlasting life.
 ```
